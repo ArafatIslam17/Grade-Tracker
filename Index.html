@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Grade Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  
+  <header class="site-header">
+    <div class="brand">
+      <div class="brand-icon">🎓</div>
+      <div class="brand-text">
+        <h1>Grade Tracker</h1>
+        <span>Manage student academic records</span>
+      </div>
+    </div>
+    <div class="header-actions" style="display:flex;align-items:center;gap:10px;">
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Toggle theme">🌙</button>
+    </div>
+  </header>
+
+  <div class="page">
+
+    
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('records')">📋 Records</button>
+      <button class="tab" onclick="switchTab('analytics')">📊 Analytics</button>
+    </div>
+
+    
+    <div class="stats-bar">
+      <div class="stat-card c-blue">
+        <div class="s-label">Total Students</div>
+        <div class="s-value s-blue" id="stat-total">0</div>
+      </div>
+      <div class="stat-card c-yellow">
+        <div class="s-label">Class Average</div>
+        <div class="s-value s-yellow" id="stat-avg">—</div>
+      </div>
+      <div class="stat-card c-green">
+        <div class="s-label">Passed</div>
+        <div class="s-value s-green" id="stat-pass">0</div>
+      </div>
+      <div class="stat-card c-red">
+        <div class="s-label">Failed</div>
+        <div class="s-value s-red" id="stat-fail">0</div>
+      </div>
+      <div class="stat-card c-purple">
+        <div class="s-label">Top Score</div>
+        <div class="s-value s-purple" id="stat-top">—</div>
+      </div>
+    </div>
+
+    
+    <div class="tab-panel active" id="tab-records">
+      <div class="main-grid">
+
+        
+        <div class="card form-panel">
+          <div class="card-header">
+            <h2 id="form-title">Add Student</h2>
+          </div>
+          <div class="card-body">
+            <div class="field">
+              <label>Student Name</label>
+              <input type="text" id="inp-name" placeholder="e.g. Rahim Chowdhury"/>
+            </div>
+            <div class="field">
+              <label>Student ID</label>
+              <input type="text" id="inp-id" placeholder="e.g. CSE-2201"/>
+            </div>
+            <div class="field">
+              <label>Section / Class</label>
+              <input type="text" id="inp-section" placeholder="e.g. Section A"/>
+            </div>
+
+            <div class="section-divider">Grades (0 – 100)</div>
+            <div class="grades-grid">
+              <div class="field">
+                <label>Math</label>
+                <input type="number" id="inp-math" placeholder="0" min="0" max="100"/>
+              </div>
+              <div class="field">
+                <label>English</label>
+                <input type="number" id="inp-eng" placeholder="0" min="0" max="100"/>
+              </div>
+              <div class="field">
+                <label>Science</label>
+                <input type="number" id="inp-sci" placeholder="0" min="0" max="100"/>
+              </div>
+              <div class="field">
+                <label>ICT</label>
+                <input type="number" id="inp-ict" placeholder="0" min="0" max="100"/>
+              </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="saveStudent()">＋ Save Student</button>
+            <button class="btn btn-ghost" id="cancel-btn" onclick="cancelEdit()" style="display:none;">✕ Cancel Edit</button>
+          </div>
+        </div>
+
+        
+        <div class="card">
+          <div class="card-header">
+            <h2>All Students</h2>
+            <div class="toolbar">
+              <input class="search-input" type="text" id="search" placeholder="Search name or ID…" oninput="renderTable()"/>
+              <select class="filter-select" id="filter-grade" onchange="renderTable()">
+                <option value="">All Grades</option>
+                <option value="A">Grade A</option>
+                <option value="B">Grade B</option>
+                <option value="C">Grade C</option>
+                <option value="D">Grade D</option>
+                <option value="F">Grade F</option>
+              </select>
+              <select class="filter-select" id="sort-by" onchange="renderTable()">
+                <option value="">Sort by…</option>
+                <option value="name">Name A–Z</option>
+                <option value="avg-desc">Avg High–Low</option>
+                <option value="avg-asc">Avg Low–High</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Student</th>
+                  <th>Section</th>
+                  <th>Math</th>
+                  <th>English</th>
+                  <th>Science</th>
+                  <th>ICT</th>
+                  <th>Average</th>
+                  <th>Grade</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="table-body"></tbody>
+            </table>
+          </div>
+          <div id="empty-state" class="empty" style="display:none;">
+            <div class="empty-icon">📋</div>
+            <p>No students found. Add one using the form.</p>
+          </div>
+          
+          <div id="table-footer" style="padding:0.8rem 1rem; border-top:1px solid var(--border); font-size:0.78rem; color:var(--muted); display:none;">
+            Showing <strong id="showing-count">0</strong> of <strong id="total-count">0</strong> students
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    
+    <div class="tab-panel" id="tab-analytics">
+      <div class="analytics-grid">
+
+        
+        <div class="a-card">
+          <h3>Grade Distribution</h3>
+          <div id="grade-dist"></div>
+        </div>
+
+        
+        <div class="a-card">
+          <h3>Subject Averages</h3>
+          <div id="subject-avgs"></div>
+        </div>
+
+        
+        <div class="a-card">
+          <h3>Top Performers</h3>
+          <div id="top-performers"></div>
+        </div>
+
+        
+        <div class="a-card">
+          <h3>Pass / Fail Breakdown</h3>
+          <div id="pass-fail-chart"></div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  
+  <div class="overlay" id="edit-modal">
+    <div class="modal">
+      <h3>✏️ Edit Student</h3>
+      <div class="field"><label>Student Name</label><input type="text" id="edit-name"/></div>
+      <div class="field"><label>Student ID</label><input type="text" id="edit-sid"/></div>
+      <div class="field"><label>Section / Class</label><input type="text" id="edit-section"/></div>
+      <div class="grades-grid">
+        <div class="field"><label>Math</label><input type="number" id="edit-math" min="0" max="100"/></div>
+        <div class="field"><label>English</label><input type="number" id="edit-eng" min="0" max="100"/></div>
+        <div class="field"><label>Science</label><input type="number" id="edit-sci" min="0" max="100"/></div>
+        <div class="field"><label>ICT</label><input type="number" id="edit-ict" min="0" max="100"/></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="saveEdit()">Update</button>
+        <button class="btn btn-ghost"   onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="overlay" id="delete-modal">
+    <div class="modal">
+      <h3>🗑️ Delete Student?</h3>
+      <p class="modal-desc">You are about to permanently remove <strong id="del-name"></strong>. This cannot be undone.</p>
+      <div class="modal-footer">
+        <button class="btn btn-danger" onclick="confirmDelete()">Yes, Delete</button>
+        <button class="btn btn-ghost"  onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="overlay" id="view-modal">
+    <div class="modal">
+      <h3>👤 Student Details</h3>
+      <div id="view-content"></div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="toast" id="toast"></div>
+
+  
+  <footer>
+    &copy; <span id="yr"></span> Arafat Islam &mdash; All rights reserved.
+  </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
